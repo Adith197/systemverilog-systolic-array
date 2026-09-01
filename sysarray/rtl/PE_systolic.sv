@@ -1,3 +1,5 @@
+`timescale 1ns/1ps
+
 module PE_systolic(
      input logic clk,
      input logic rst,
@@ -41,9 +43,9 @@ begin
         end
     end
 end
-assign a_out       = a_reg;
+assign a_out = a_reg;
 assign a_valid_out = a_valid_reg;
-assign b_out       = b_reg;
+assign b_out = b_reg;
 assign b_valid_out = b_valid_reg;
 assign acc = acc_reg;
 endmodule
