@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module sys_systolic_controller #(parameter int N = 4)(
+module sys_systolic_controller #(parameter int N = 2)(
     input logic clk,
     input logic rst,
     input logic start,
@@ -12,6 +12,7 @@ module sys_systolic_controller #(parameter int N = 4)(
 );
 localparam int CYCLE_W = $clog2(2*N+1);
 localparam int LAST_CYCLE = 2*N-2;
+localparam int DRAIN_W = $clog2(N+1);
 typedef enum logic [1:0]{
     IDLE,
     RUN,
@@ -19,15 +20,18 @@ typedef enum logic [1:0]{
     DONE
 }state_t;
 state_t state;
+logic [DRAIN_W-1:0] drain_count;
 always_ff @(posedge clk) begin
     if (rst) begin
         state <= IDLE;
         cycle <= '0;
+        drain_count <= '0;
     end
     else begin
         case (state)
             IDLE :begin
                 cycle <= '0;
+                drain_count <= '0;
                 if (start) begin
                     state <= RUN;
                 end
@@ -35,21 +39,29 @@ always_ff @(posedge clk) begin
             RUN :begin
                 if (cycle == CYCLE_W'(LAST_CYCLE)) begin
                     state <= DRAIN;
+                    drain_count <= '0;
                 end
                 else begin
                     cycle <= cycle+1'b1;
                 end
             end
             DRAIN :begin
-                state <= DONE;
+                if(drain_count == DRAIN_W'(N-1)) begin
+                    state <= DONE;
+                end
+                else begin
+                    drain_count <= drain_count+1'b1;
+                end
             end
             DONE :begin
                 state <= IDLE;
                 cycle <= '0;
+                drain_count <= '0;
             end
             default :begin
                 state <= IDLE;
                 cycle <= '0;
+                drain_count <= '0;
             end
         endcase
     end

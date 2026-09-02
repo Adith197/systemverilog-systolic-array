@@ -1,6 +1,6 @@
 `timescale 1ns/1ps
 
-module PE_sysarray #(parameter int N=2)(
+module PE_sysarray #(parameter int N=4)(
     input logic clk,
     input logic rst,
     input logic clear,
